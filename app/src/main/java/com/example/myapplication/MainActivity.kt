@@ -49,7 +49,6 @@ class MainActivity : FragmentActivity(), ActivityCompat.OnRequestPermissionsResu
     override fun onStart() {
         super.onStart()
         yandexPointsMapView?.startMap()
-        yandexPointsMapView?.centerOnDefault()
     }
 
     override fun onStop() {
@@ -105,7 +104,7 @@ class MainActivity : FragmentActivity(), ActivityCompat.OnRequestPermissionsResu
         val result = LocationServices.getSettingsClient(context)
             .checkLocationSettings(locationSettingsRequest)
 
-        result.addOnSuccessListener { yandexPointsMapView?.centerOnDefault() }
+        result.addOnSuccessListener { /*yandexPointsMapView?.centerOnDefault()*/ }
             .addOnFailureListener {
                 val apiException = it as? ApiException
                 if (apiException != null) {

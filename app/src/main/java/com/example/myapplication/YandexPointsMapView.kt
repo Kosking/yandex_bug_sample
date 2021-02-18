@@ -4,17 +4,23 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.ScreenPoint
 import com.yandex.mapkit.ScreenRect
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.location.LocationManager
+import com.yandex.mapkit.layers.ObjectEvent
+import com.yandex.mapkit.location.*
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.mapkit.user_location.UserLocationLayer
+import com.yandex.mapkit.user_location.UserLocationObjectListener
+import com.yandex.mapkit.user_location.UserLocationView
+import com.yandex.runtime.image.ImageProvider
 
 private const val CAMERA_ANIMATION_ZOOM_DURATION_MILLIS = 1f
 private const val MSK_DEFAULT_ZOOM = 10F
@@ -23,7 +29,7 @@ private const val DEFAULT_ZOOM = 17F
 // Класс для работы с Яндекс картой
 class YandexPointsMapView
 @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : FrameLayout(context, attrs, defStyleAttr) {
+    : FrameLayout(context, attrs, defStyleAttr), UserLocationObjectListener, LocationListener {
 
     private val mskCenter = Point(55.753960, 37.620393)
     var mapPaddingBottom = 0
@@ -42,8 +48,10 @@ class YandexPointsMapView
         initMapUiSettings(mapView!!.map)
         val mapKit = MapKitFactory.getInstance()
         locationManager = mapKit.createLocationManager()
+        locationManager?.subscribeForLocationUpdates(0.0, 0, 0.0, false, FilteringMode.OFF, this)
         userLocationLayer = mapKit.createUserLocationLayer(mapView!!.mapWindow)
-        userLocationLayer?.isVisible = false
+        userLocationLayer?.isVisible = true
+        userLocationLayer?.setObjectListener(this)
     }
 
     private fun initMapUiSettings(map: Map) {
@@ -93,5 +101,28 @@ class YandexPointsMapView
         mapView?.onStop()
         MapKitFactory.getInstance().onStop()
         locationManager?.suspend()
+    }
+
+    override fun onObjectUpdated(p0: UserLocationView, p1: ObjectEvent) {
+    }
+
+    override fun onObjectRemoved(p0: UserLocationView) {
+    }
+
+    override fun onObjectAdded(userLocationView: UserLocationView) {
+        val userLocationIcon = ImageProvider.fromResource(context, R.drawable.locator)
+        userLocationView.arrow.setIcon(userLocationIcon)
+        val pinIcon = userLocationView.pin.useCompositeIcon()
+        pinIcon.setIcon("icon", userLocationIcon, IconStyle())
+        userLocationView.accuracyCircle.fillColor = ContextCompat.getColor(context, R.color.accuracy_circle_color)
+    }
+
+    override fun onLocationStatusUpdated(p0: LocationStatus) {
+    }
+
+    override fun onLocationUpdated(userLocation: Location) {
+        val userPoint = userLocation.position
+        val point = Point(userPoint.latitude, userPoint.longitude)
+        moveCamera(point)
     }
 }

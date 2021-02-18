@@ -37,7 +37,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.1.0"
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation "com.google.android.material:material:1.0.0"
-    implementation 'com.yandex.android:mapkit:3.5.0'
+    implementation 'com.yandex.android:maps.mobile:4.0.0-lite'
     implementation "com.google.maps.android:android-maps-utils:2.0.3"
     implementation "com.google.android.gms:play-services-maps:16.0.0"
     implementation "com.google.android.gms:play-services-location:16.0.0"
